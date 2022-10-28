@@ -44,6 +44,14 @@ export default {
     mounted() {
         this.getProduct()
     },
+
+    watch: {
+        $route(to, from) {
+            if(to.name === 'product') {
+                this.getProduct()
+            }
+        }
+    },
     methods: {
         async getProduct() {
             this.$store.commit('setIsLoading', true)

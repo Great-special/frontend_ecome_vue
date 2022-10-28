@@ -5,23 +5,38 @@
         <router-link to="/" class="navbar-item">
           <strong>Ecome</strong>
         </router-link>
-        <a class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu" @click="showMobileMenu = !showMobileMenu">
+        <a
+          class="navbar-burger"
+          aria-label="menu"
+          aria-expanded="false"
+          data-target="navbar-menu"
+          @click="showMobileMenu = !showMobileMenu"
+        >
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
         </a>
       </div>
-      
-      <div class="navbar-menu" id="navbar-menu" v-bind:class="{'is-active':showMobileMenu}">
+
+      <div
+        class="navbar-menu"
+        id="navbar-menu"
+        v-bind:class="{ 'is-active': showMobileMenu }"
+      >
         <div class="navbar-start">
           <div class="navbar-item">
             <form method="get" action="/search">
               <div class="field has-addons">
                 <div class="control">
-                  <input type="text" name="query" class="input" placeholder="What are you looking for?"/>
+                  <input
+                    type="text"
+                    name="query"
+                    class="input"
+                    placeholder="What are you looking for?"
+                  />
                 </div>
-                
+
                 <div class="control">
                   <button class="button is-success">
                     <span class="icon">
@@ -29,7 +44,6 @@
                     </span>
                   </button>
                 </div>
-                
               </div>
             </form>
           </div>
@@ -37,31 +51,45 @@
 
         <div class="navbar-end">
           <router-link to="/products" class="navbar-item">Products</router-link>
-          <router-link to="/orders" class="navbar-item">Orders</router-link>
+          <router-link to="/order" class="navbar-item">Order</router-link>
 
           <div class="navbar-item">
             <div class="buttons">
               <router-link to="/cart" class="button is-success">
                 <span class="icon"><i class="fas fa-shopping-cart"></i></span>
-                <span>Cart ({{cartTotalLength}})</span>
+                <span>Cart ({{ cartTotalLength }})</span>
               </router-link>
-              <router-link to="/log-in" class="button is-light">Log in</router-link>
+              
+              <div class="navbar-item">
+                <div class="buttons">
+                  <template v-if="$store.state.isAuthenticated">
+                    <router-link to="/my-account" class="button is-light">My account</router-link>
+                  </template>
+
+                  <template v-else>
+                    <router-link to="/log-in" class="button is-light">Log in</router-link>
+                  </template>
+                </div>
+              </div>
+              
             </div>
           </div>
-
         </div>
       </div>
     </nav>
 
-    <div class="is-loading-bar has-text-centered" v-bind:class="{'is-loading': $store.state.isLoading}">
+    <div
+      class="is-loading-bar has-text-centered"
+      v-bind:class="{ 'is-loading': $store.state.isLoading }"
+    >
       <div class="lds-dual-ring"></div>
     </div>
 
-  <!-- this were all the content of the views are placed -->
+    <!-- this were all the content of the views are placed -->
     <section class="section">
-      <router-view/>
+      <router-view />
     </section>
-    
+
     <footer class="footer">
       <p class="has-text-centered">Copyright &copy; 2022</p>
     </footer>
@@ -69,46 +97,56 @@
 </template>
 
 <script>
-  export default {
-    data () {
-      return {
-        showMobileMenu: false,
-        cart: {
-          items: []
-        }
-      }
-    },
+import axios from 'axios'
 
-    beforeCreate() {
-      this.$store.commit('initializeStore')
-    },
+export default {
+  data() {
+    return {
+      showMobileMenu: false,
+      cart: {
+        items: [],
+      },
+    };
+  },
 
-    mounted() {
-      this.cart = this.$store.state.cart
-    },
+  beforeCreate() {
+    this.$store.commit("initializeStore");
 
-    computed: {
-      cartTotalLength() {
-        let totalLength = 0
-        
-        // console.log(this.cart.items.length, 'length')
+    const token = this.$store.state.token
 
-        for (let i = 0; i < this.cart.items.length; i++) {
-          // console.log(this.cart.items[i].quantity, 'added')
-          totalLength += this.cart.items[i].quantity
-        }
-
-        return totalLength
-      }
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = "Token " + token
+    } else {
+      axios.defaults.headers.common['Authorization'] = ""
     }
-  }
+  },
+
+  mounted() {
+    this.cart = this.$store.state.cart;
+  },
+
+  computed: {
+    cartTotalLength() {
+      let totalLength = 0;
+
+      // console.log(this.cart.items.length, 'length')
+
+      for (let i = 0; i < this.cart.items.length; i++) {
+        // console.log(this.cart.items[i].quantity, 'added')
+        totalLength += this.cart.items[i].quantity;
+      }
+
+      return totalLength;
+    },
+  },
+};
 </script>
 
 
 
 
 <style lang="scss">
-@import '../node_modules/bulma';
+@import "../node_modules/bulma";
 
 .lds-dual-ring {
   display: inline-block;
@@ -138,14 +176,14 @@
 }
 
 .is-loading-bar {
-    height: 0;
-    overflow: hidden;
-    
-    -webkiit-transition: all 0.3s;
-    transition: all 0.3s;
+  height: 0;
+  overflow: hidden;
 
-    &.is-loading {
-      height: 80px;
-    }
+  -webkiit-transition: all 0.3s;
+  transition: all 0.3s;
+
+  &.is-loading {
+    height: 80px;
   }
+}
 </style>
