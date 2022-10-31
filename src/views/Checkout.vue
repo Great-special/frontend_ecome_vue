@@ -17,7 +17,7 @@
           </thead>
 
           <tbody>
-            <tr v-for="item in cart.items" v-bind:key="item.id">
+            <tr v-for="item in cart.items" v-bind:key="item.product.id">
               <td>{{ item.product.name }}</td>
               <td>${{ item.product.price }}</td>
               <td>{{ item.quantity }}</td>
@@ -138,6 +138,27 @@ export default {
     document.title = "Checkout | Ecome";
 
     this.cart = this.$store.state.cart;
+
+    // if (this.cartTotalLength > 0) {
+    //   this.stripe = Stripe("your STRIPE_SECRET_KEY");
+    //   const elements = this.stripe.elements();
+    //   this.card = elements.create("card", { hidePostalCode: true });
+
+    //   this.card.mount("#card-element");
+    // }
+  },
+  computed: {
+    cartTotalLength() {
+      return this.cart.items.reduce((acc, curVal) => {
+        return (acc += curVal.quantity);
+      }, 0);
+    },
+
+    cartTotalPrice() {
+      return this.cart.items.reduce((acc, curVal) => {
+        return (acc += curVal.product.price * curVal.quantity);
+      }, 0);
+    },
   },
   methods: {
     getItemTotal(item) {
@@ -172,23 +193,59 @@ export default {
       }
 
       if (!this.errors.length) {
-        const formData = {
-          
-        };
+        this.$store.commit("setIsLoading", true);
+
+        this.stripe.createToken(this.card).then((result) => {
+          if (result.error) {
+            this.$store.commit("setIsLoading", false);
+
+            this.error.push(
+              "Something went wrong with Stripe. Please try again"
+            );
+
+            console.log(result.error.message);
+          } else {
+            this.stripeTokenHandler(result.token);
+          }
+        });
       }
     },
-  },
-  computed: {
-    cartTotalLength() {
-      return this.cart.items.reduce((acc, curVal) => {
-        return (acc += curVal.quantity);
-      }, 0);
-    },
+    async stripeTokenHandler(token) {
+      const items = [];
 
-    cartTotalPrice() {
-      return this.cart.items.reduce((acc, curVal) => {
-        return (acc += curVal.product.price * curVal.quantity);
-      }, 0);
+      for (let i = 0; i < this.cart.items.length; i++) {
+        const item = this.cart.items[1];
+        const obj = {
+          product: item.product.id,
+          quantity: item.quantity,
+          price: item.product.price * item.quantity,
+        };
+
+        items.push(obj);
+      }
+
+      const data = {
+        first_name: this.first_name,
+        last_name: this.last_name,
+        email: this.email,
+        address: this.address,
+        place: this.place,
+        items: items,
+        stripe_token: token.id,
+      };
+
+      await axios
+        .post("api/v1/checkout/", data)
+        .then((response) => {
+          this.$store.commit("clearCart");
+          this.$router.push("/cart/success");
+        })
+        .catch((error) => {
+          this.errors.push("Something went wrong. Please try again.");
+          console.log(error);
+        });
+
+      this.$store.commit("setIsLoading", false);
     },
   },
 };

@@ -1,12 +1,12 @@
 <template>
-  <div class="page-order">
-
+  <div class="page-orderSummary">
+    
   </div>
 </template>
 
 <script>
 export default {
-    name: 'Order'
+
 }
 </script>
 
