@@ -6,7 +6,7 @@
           Welcome to Ecome
         </p>
         <p class="subtitle">
-          The best online store
+          The best online shoes store
         </p>
       </div>
     </section>

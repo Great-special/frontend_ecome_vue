@@ -51,6 +51,8 @@
 
         <div class="navbar-end">
           <router-link to="/products" class="navbar-item">Products</router-link>
+          <router-link to="/women" class="navbar-item">Women</router-link>
+          <router-link to="/men" class="navbar-item">Men</router-link>
           <router-link to="/order" class="navbar-item">Order</router-link>
 
           <div class="navbar-item">

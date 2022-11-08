@@ -139,13 +139,16 @@ export default {
 
     this.cart = this.$store.state.cart;
 
-    // if (this.cartTotalLength > 0) {
-    //   this.stripe = Stripe("your STRIPE_SECRET_KEY");
-    //   const elements = this.stripe.elements();
-    //   this.card = elements.create("card", { hidePostalCode: true });
+    if (this.cartTotalLength > 0) {
+      // The Publishable key is used on the frontend while the Secret key is used in the backend
+      this.stripe = Stripe(
+        "pk_test_51LzQwaCJA0lCvXM00zeNiRuP1CcfyGtHsSeFr6vbgMjA4kYa5a4XEE5Jl0gB44oe0RfsrwqTkqWVA8hpwlRYSPkw007QIMjoil"
+      );
+      const elements = this.stripe.elements();
+      this.card = elements.create("card", { hidePostalCode: true });
 
-    //   this.card.mount("#card-element");
-    // }
+      this.card.mount("#card-element");
+    }
   },
   computed: {
     cartTotalLength() {
@@ -199,7 +202,7 @@ export default {
           if (result.error) {
             this.$store.commit("setIsLoading", false);
 
-            this.error.push(
+            this.errors.push(
               "Something went wrong with Stripe. Please try again"
             );
 
@@ -214,7 +217,8 @@ export default {
       const items = [];
 
       for (let i = 0; i < this.cart.items.length; i++) {
-        const item = this.cart.items[1];
+        const item = this.cart.items[i];
+        // console.log(item.product.id)
         const obj = {
           product: item.product.id,
           quantity: item.quantity,
@@ -225,13 +229,14 @@ export default {
       }
 
       const data = {
-        first_name: this.first_name,
-        last_name: this.last_name,
-        email: this.email,
-        address: this.address,
-        place: this.place,
-        items: items,
-        stripe_token: token.id,
+        'first_name': this.first_name,
+        'last_name': this.last_name,
+        'email': this.email,
+        'address': this.address,
+        'place': this.place,
+        'phone': this.phone,
+        'items': items,
+        'stripe_token': token.id,
       };
 
       await axios

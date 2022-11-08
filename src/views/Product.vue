@@ -57,8 +57,9 @@ export default {
             this.$store.commit('setIsLoading', true)
 
             const product_slug = this.$route.params.product_slug
-
-            await axios.get(`/api/v1/product/${product_slug}`).then(response => {
+            const category_slug = this.$route.params.category_slug
+        
+            await axios.get(`/api/v1/products/${category_slug}/${product_slug}`).then(response => {
                     this.product = response.data
 
                     document.title = this.product.name + ' | Ecome'
